@@ -6,16 +6,23 @@ from random import randint
 from paho.mqtt import client as mqtt_client
 import json
 
-broker = '127.0.0.1'
+broker = "localhost"
 port = 1883
 topic = "safescan_1/#"
 # generate client ID with pub prefix randomly
-client_id = f'python-mqtt-{randint(0, 100)}'
+client_id = f"python-mqtt-{randint(0, 100)}"
 # username = 'emqx'
 # password = 'public'
 
-class MainWindow(QMainWindow):
 
+def start():
+    app = QApplication(sys.argv)
+    main = MainWindow()
+    main.show()
+    app.exec()
+
+
+class MainWindow(QMainWindow):
     def __init__(self):
 
         self.x_axis_range = 468
@@ -30,14 +37,14 @@ class MainWindow(QMainWindow):
         self.x = list(range(self.x_axis_range))  # 100 time points
         self.y = [randint(-10, 10) for _ in range(self.x_axis_range)]  # 100 data points
 
-        self.graphWidget.setBackground('w')
+        self.graphWidget.setBackground("w")
 
-        title_style = {'color': 'b', 'size': '40px'}
+        title_style = {"color": "b", "size": "40px"}
         self.graphWidget.setTitle("SafeScan Radar Visualisation", **title_style)
 
-        styles = {'color': 'b', 'font-size': '20px'}
-        self.graphWidget.setLabel('left', 'Radar Signal', **styles)
-        self.graphWidget.setLabel('bottom', 'Distance from Radar', **styles)
+        styles = {"color": "b", "font-size": "20px"}
+        self.graphWidget.setLabel("left", "Radar Signal", **styles)
+        self.graphWidget.setLabel("bottom", "Distance from Radar", **styles)
         self.graphWidget.setXRange(0, self.x_axis_range, padding=0)
         self.graphWidget.setYRange(-1000, 1000, padding=0)
 
@@ -56,7 +63,7 @@ class MainWindow(QMainWindow):
 
         self.subscribe(self.client)
         self.client.loop(0.001)
-        self.y = self.m_decode[0:self.x_axis_range]
+        self.y = self.m_decode[0 : self.x_axis_range]
         self.data_line.setData(self.x, self.y)  # Update the data.
 
     def connect_mqtt(self) -> mqtt_client:
@@ -73,7 +80,6 @@ class MainWindow(QMainWindow):
         return client
 
     def subscribe(self, client: mqtt_client):
-
         def on_message(client, userdata, msg):
             # print(f"Received `{msg.payload.decode()}` from `{msg.topic}` topic")
 
@@ -84,7 +90,8 @@ class MainWindow(QMainWindow):
         self.client.on_message = on_message
 
 
-app = QApplication(sys.argv)
-main = MainWindow()
-main.show()
-app.exec()
+if __name__ == "__main__":
+    try:
+        start()
+    except KeyboardInterrupt:
+        exit(0)
