@@ -29,10 +29,9 @@ def on_message(client, userdata, msg):
 
 def add_data(data, queue: Queue = DATA_QUEUE):
     queue.put_nowait(data)
-    if (size := DATA_QUEUE.qsize()) > 2:
+    if (size := queue.qsize()) > 2:
         print(f"queue size: {size}")
 
 
 def get_data(queue: Queue = DATA_QUEUE):
     return queue.get(block=True)
-
