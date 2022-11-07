@@ -15,7 +15,7 @@ MQTT_TOPIC = "safescan_1/random_data"
 
 
 def start():
-    print(f'Running in a loop at {FPS} fps')
+    print(f"Running in a loop at {FPS} fps")
     while True:
         random_array = [random.randint(-1000, 1000) for _ in range(ARRAY_LEN)]
         json_out = json.dumps(random_array)
