@@ -1,4 +1,4 @@
-from random import randint
+from typing import Callable
 from PySide6.QtWidgets import QApplication, QMainWindow
 from PySide6.QtCore import QTimer
 import pyqtgraph as pg
@@ -6,30 +6,29 @@ import sys
 
 from . import consumer
 
-X_RANGE = (0, 468)
+X_RANGE = (0, 500)
 Y_RANGE = (-1000, 1000)
 
 
 def start():
     app = QApplication(sys.argv)
-    main = MainWindow(x_range=X_RANGE, y_range=Y_RANGE)
+    main = MainWindow(x_range=X_RANGE, y_range=Y_RANGE, get_data_func=consumer.get_data)
     consumer.start_consumer()
     main.show()
-    app.exec()
+    sys.exit(app.exec())
 
 
 class MainWindow(QMainWindow):
-    def __init__(self, x_range: tuple, y_range: tuple):
+    def __init__(self, x_range: tuple, y_range: tuple, get_data_func: Callable):
         super(MainWindow, self).__init__()
 
         self.x_min, self.x_max = x_range
         self.y_min, self.y_max = y_range
+        self.get_data = get_data_func
 
+        # plot stuff
         self.graphWidget = pg.PlotWidget()
         self.setCentralWidget(self.graphWidget)
-
-        self.x = list(range(self.x_max))  # 100 time points
-        self.y = [randint(-10, 10) for _ in range(self.x_max)]  # 100 data points
 
         self.graphWidget.setBackground("w")
 
@@ -38,22 +37,39 @@ class MainWindow(QMainWindow):
 
         styles = {"color": "b", "font-size": "20px"}
         self.graphWidget.setLabel("left", "Radar Signal", **styles)
+        self.graphWidget.setYRange(self.y_min, self.y_max, padding=0)
         self.graphWidget.setLabel("bottom", "Distance from Radar", **styles)
         self.graphWidget.setXRange(self.x_min, self.x_max, padding=0)
-        self.graphWidget.setYRange(self.y_min, self.y_max, padding=0)
 
         pen = pg.mkPen(color=(255, 0, 0))
-        self.data_line = self.graphWidget.plot(self.x, self.y, pen=pen)
+        x = range(self.x_max)
+        y = [0] * self.x_max
+        self.data_line = self.graphWidget.plot(x=x, y=y, pen=pen)
 
-        self.timer = QTimer()
-        self.timer.setInterval(1)
-        self.timer.timeout.connect(self.update_plot_data)
+        self.timer = self.set_up_timer()
         self.timer.start()
 
-    def update_plot_data(self):
-        new_data = consumer.get_data()
-        self.y = new_data[0 : self.x_max]
-        self.data_line.setData(self.x, self.y)  # Update the data.
+    def set_up_timer(self, millis: int = 1) -> QTimer:
+        timer = QTimer()
+        timer.setInterval(millis)
+        timer.timeout.connect(self.update_plot_data)
+        return timer
+
+    def update_plot_data(self) -> bool:
+        x, y = self.get_data()  # this should be a blocking function
+
+        len_x, len_y = (len(x), len(y))
+
+        if not len_x == len_y:
+            return False
+
+        if not len_x == self.x_max:
+            print(f"{len_x} != {self.x_max}")
+            self.x_max = len_x
+            self.graphWidget.setXRange(self.x_min, self.x_max)
+
+        self.data_line.setData(x, y)  # Update the data
+        return True
 
 
 if __name__ == "__main__":

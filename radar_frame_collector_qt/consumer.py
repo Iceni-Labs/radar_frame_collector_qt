@@ -1,12 +1,14 @@
 import json
 import paho.mqtt.client as mqtt
+from paho.mqtt.client import MQTTMessage
 from queue import Queue
+from typing import Any, Iterable
 
 MQTT_BROKER = "localhost"
 MQTT_PORT = 1883
 MQTT_SUB_TOPIC = "safescan_1/#"
 
-DATA_QUEUE = Queue()
+DATA_QUEUE: Queue = Queue()
 
 
 def start_consumer():
@@ -17,21 +19,25 @@ def start_consumer():
     client.loop_start()
 
 
-def on_connect(client, userdata, flags, rc):
+def on_connect(client: mqtt.Client, userdata: Any, flags: Any, rc: Any):
     print(f"Connected to {MQTT_BROKER}:{MQTT_PORT} with result code {str(rc)}")
     client.subscribe(MQTT_SUB_TOPIC)
 
 
-def on_message(client, userdata, msg):
+def on_message(client: mqtt.Client, userdata: Any, msg: MQTTMessage) -> None:
     data = json.loads(msg.payload)
     add_data(data)
 
 
-def add_data(data, queue: Queue = DATA_QUEUE):
+def add_data(data, queue: Queue = DATA_QUEUE) -> int:
     queue.put_nowait(data)
     if (size := queue.qsize()) > 2:
         print(f"queue size: {size}")
+    return size
 
 
-def get_data(queue: Queue = DATA_QUEUE):
-    return queue.get(block=True)
+def get_data(queue: Queue = DATA_QUEUE) -> tuple[Iterable, Iterable]:
+    """Return (x, y) tuple"""
+    y = queue.get(block=True)
+    x = range(len(y))
+    return x, y
