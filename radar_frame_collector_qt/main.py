@@ -64,7 +64,7 @@ class MainWindow(QMainWindow):
             return False
 
         if not len_x == self.x_max:
-            print(f"{len_x} != {self.x_max}")
+            print(f"Date size changed ({len_x} != {self.x_max}). Re-creating x-axis.")
             self.x_max = len_x
             self.graphWidget.setXRange(self.x_min, self.x_max)
 
