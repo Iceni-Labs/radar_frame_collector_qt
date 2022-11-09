@@ -17,4 +17,4 @@ requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.scripts]
-display = "radar_frame_collector_qt.main:start"
+app = "radar_frame_collector_qt.main:start"
