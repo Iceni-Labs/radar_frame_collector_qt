@@ -1,6 +1,6 @@
 from typing import Callable
 from PySide6.QtWidgets import QApplication, QMainWindow
-from PySide6.QtCore import QTimer
+from PySide6.QtCore import QTimer, QProcess
 import pyqtgraph as pg
 import sys
 
@@ -20,7 +20,7 @@ def start():
 
 class MainWindow(QMainWindow):
     def __init__(self, x_range: tuple, y_range: tuple, get_data_func: Callable):
-        super(MainWindow, self).__init__()
+        super().__init__()
 
         self.x_min, self.x_max = x_range
         self.y_min, self.y_max = y_range
@@ -30,9 +30,10 @@ class MainWindow(QMainWindow):
         self.graphWidget = pg.PlotWidget()
         self.setCentralWidget(self.graphWidget)
 
-        self.graphWidget.setBackground("w")
+        self.graphWidget.setBackground("w") 
 
         title_style = {"color": "b", "size": "40px"}
+        self.setWindowTitle("SafeScan Radar Visualisation")
         self.graphWidget.setTitle("SafeScan Radar Visualisation", **title_style)
 
         styles = {"color": "b", "font-size": "20px"}
