@@ -6,7 +6,7 @@ from typing import Any, Iterable
 
 MQTT_BROKER = "localhost"
 MQTT_PORT = 1883
-MQTT_SUB_TOPIC = "safescan_1/#"
+MQTT_SUB_TOPIC = "xethru/radar_data"
 
 DATA_QUEUE: Queue = Queue()
 
@@ -26,7 +26,7 @@ def on_connect(client: mqtt.Client, userdata: Any, flags: Any, rc: Any):
 
 def on_message(client: mqtt.Client, userdata: Any, msg: MQTTMessage) -> None:
     data = json.loads(msg.payload)
-    add_data(data)
+    add_data(data["data"])
 
 
 def add_data(data, queue: Queue = DATA_QUEUE) -> int:
@@ -41,3 +41,10 @@ def get_data(queue: Queue = DATA_QUEUE) -> tuple[Iterable, Iterable]:
     y = queue.get(block=True)
     x = range(len(y))
     return x, y
+
+
+if __name__ == "__main__":
+    try:
+        start_consumer()
+    except KeyboardInterrupt:
+        exit(0)
