@@ -1,0 +1,20 @@
+[tool.poetry]
+name = "radar-frame-collector-qt"
+version = "0.2.0"
+description = ""
+authors = ["joel35 <64959969+joel35@users.noreply.github.com>"]
+readme = "README.md"
+packages = [{include = "radar_frame_collector_qt"}]
+
+[tool.poetry.dependencies]
+python = "~3.11.0"
+pyside6 = "^6.4.0.1"
+pyqtgraph = "^0.13.1"
+paho-mqtt = "^1.6.1"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.scripts]
+display = "radar_frame_collector_qt.main:start"
